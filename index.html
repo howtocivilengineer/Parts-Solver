@@ -54,6 +54,20 @@ button.on{background:var(--lcd);color:#1A1200;border-color:#8A6500}
 .vrow.sel .vn{color:var(--lcd);font-weight:700}
 .vrow input{flex:1;min-width:0;padding:3px 4px;font-size:11px}
 .vrow .vx{flex:0 0 22px;padding:3px 0;font-size:11px;letter-spacing:0}
+.vhead{display:flex;align-items:center;gap:4px;padding:0 0 2px}
+.vhead .vh{flex:1;min-width:0;color:var(--mute);font-size:9px;letter-spacing:.12em;text-transform:uppercase;text-align:center}
+.frow{display:flex;align-items:center;gap:5px;margin:1px 0 3px 26px;padding:2px 6px;
+  border-left:2px solid var(--graphite-3);color:var(--mute);font-family:var(--data);font-size:10.5px;cursor:default}
+.frow .fa{flex:0 0 30px;color:#5F8FA8}
+.frow .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frow .fl{flex:0 0 46px;text-align:right;color:#C9CDD3}
+.frow .fg{flex:0 0 46px;text-align:right;color:var(--lcd)}
+.prow{display:flex;align-items:center;gap:6px;padding:5px 7px;border:1px solid var(--graphite-3);
+  border-radius:2px;background:var(--graphite);margin-bottom:4px;cursor:pointer;font-family:var(--data)}
+.prow.on{border-color:var(--lcd);background:#2b2718}
+.prow .pn{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .pi{color:var(--mute);font-size:10px;font-family:var(--stencil);letter-spacing:.08em;text-transform:uppercase}
+.prow .px{flex:0 0 22px;padding:2px 0;font-size:11px;letter-spacing:0}
 .lay{border:1px solid var(--graphite-3);border-radius:2px;background:var(--graphite);padding:6px 7px;margin-bottom:5px}
 .lay .lh{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .lay .sw{width:12px;height:12px;border-radius:1px;flex:0 0 12px;border:1px solid #0007}
@@ -85,6 +99,20 @@ canvas#cv3{flex:1;display:block;width:100%;cursor:grab;touch-action:none;backgro
 #drop{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
   background:rgba(18,21,25,.82);border:2px dashed var(--lcd);pointer-events:none}
 #drop.over{display:flex}
+#pick{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(12,14,17,.72)}
+#pick.on{display:flex}
+.pbox{width:min(520px,92vw);max-height:82vh;display:flex;flex-direction:column;background:var(--graphite-2);border:1px solid #000;border-radius:3px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.phead{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--graphite);border-bottom:1px solid #000;color:var(--lcd);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.phead button{margin-left:auto}
+.pbody{padding:8px 11px;overflow-y:auto}
+.pgrp{color:var(--mute);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin:8px 0 5px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px}
+.ptile{text-align:left;padding:7px 8px;background:var(--graphite);border:1px solid var(--graphite-3);border-radius:2px;cursor:pointer;font-family:var(--data);font-size:12px;text-transform:none;letter-spacing:0;font-weight:400;color:#E6E9EC}
+.ptile:hover{border-color:var(--lcd);background:#2b2718}
+.ptile small{display:block;color:var(--mute);font-family:var(--stencil);font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.ptile .rm{float:right;color:var(--mute);padding:0 2px}
+.pfoot{display:flex;gap:6px;padding:8px 11px;border-top:1px solid #000;background:var(--graphite)}
+.pfoot button{flex:1}
 #drop span{color:var(--lcd);font-size:14px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
 .foot{padding:6px 12px;background:var(--graphite);border-top:1px solid #000;color:var(--mute);font-size:11px}
 .foot b.att{color:#4bbf7f}.foot b.day{color:#ef6b60}
@@ -107,7 +135,31 @@ canvas#cv3{flex:1;display:block;width:100%;cursor:grab;touch-action:none;backgro
 <main>
   <div class="panel">
     <section>
-      <h2>1 · Part</h2>
+      <h2>1 · Parts</h2>
+      <div id="partList"></div>
+      <div class="row" style="margin-top:6px"><button id="bAddPart">Attach a part</button><button id="bSwapPart" class="tool">Replace this</button></div>
+      <div id="anchorBox" style="display:none">
+        <label class="f">Attach this part to</label>
+        <select id="anParent"></select>
+        <div class="row" style="margin-top:5px">
+          <div><label class="f">At its</label><select id="anKind">
+            <option value="day">Daylight</option>
+            <option value="day2">Daylight 2</option>
+            <option value="attach">Attach point</option>
+            <option value="vertex">Vertex</option></select></div>
+          <div id="anVbox" style="display:none"><label class="f">Vertex</label>
+            <input type="number" id="anV" step="1" min="1"></div>
+        </div>
+        <div class="row" style="margin-top:5px">
+          <div><label class="f">Offset out</label><input type="number" id="anX" step="0.001"></div>
+          <div><label class="f">Offset up</label><input type="number" id="anY" step="0.001"></div>
+        </div>
+        <p class="hint">Leave the offset at zero and the part carries straight on from its parent's daylight — a kerb handing over to a pavement. Give it an offset to sit beside or below its parent instead, like a drain behind a wall.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2 · Part</h2>
       <div class="row">
         <div><label class="f">Category</label><select id="cat">
           <option value="horizontal">Horizontal</option>
@@ -121,21 +173,21 @@ canvas#cv3{flex:1;display:block;width:100%;cursor:grab;touch-action:none;backgro
     </section>
 
     <section>
-      <h2>2 · Section</h2>
+      <h2>3 · Section</h2>
       <div class="vtx" id="vtxList"></div>
       <p class="warn" id="shapeWarn" style="display:none"></p>
       <p class="hint" id="shapeHint"></p>
     </section>
 
     <section>
-      <h2>3 · Layers</h2>
+      <h2>4 · Layers</h2>
       <div id="layList"></div>
       <button id="bAddLay" class="wide">Add layer below</button>
       <p class="hint">Layer 1 is the top. Rename them to suit — wearing surface, basecourse, subbase. Only Layer 1 is ever exposed; everything under it is buried by definition.</p>
     </section>
 
     <section>
-      <h2>4 · Attach &amp; daylight</h2>
+      <h2>5 · Attach &amp; daylight</h2>
       <label class="f" style="color:#4bbf7f">Attach — pins to the string</label>
       <div class="row"><select id="aE" style="flex:1.6"></select><input type="number" id="aD" step="0.001" min="0" style="flex:1" placeholder="m or mm"></div>
       <label class="f" style="color:#ef6b60">Daylight</label>
@@ -149,7 +201,7 @@ canvas#cv3{flex:1;display:block;width:100%;cursor:grab;touch-action:none;backgro
     </section>
 
     <section>
-      <h2>5 · Faces</h2>
+      <h2>6 · Faces</h2>
       <div class="faces" id="faceList"></div>
       <button id="bReset" class="wide">Reset to automatic</button>
       <p class="hint">Faces of Layer 1 only. ⟂ marks a vertical face. Click one to override.</p>
@@ -163,6 +215,8 @@ canvas#cv3{flex:1;display:block;width:100%;cursor:grab;touch-action:none;backgro
       <button id="tStr" class="tool on">String &amp; Daylight</button>
       <button id="tGrade" class="tool on">Grades</button>
       <button id="tLab" class="tool on">Face names</button>
+      <button id="tVnum" class="tool on">Vertices</button>
+      <button id="tSeg" class="tool">Seg lengths</button>
       <span class="sep"></span>
       <button id="t3D" class="tool on">3D</button>
     </div>
@@ -176,6 +230,23 @@ canvas#cv3{flex:1;display:block;width:100%;cursor:grab;touch-action:none;backgro
       <div class="kv"><span id="vErr"></span></div>
     </div>
     <div id="drop"><span>Drop a saved part to review it</span></div>
+<div id="pick"><div class="pbox">
+  <div class="phead"><span id="pickTitle">Choose a part</span>
+    <button id="pickX" class="v3dbtn">Close</button></div>
+  <div class="pbody">
+    <div class="pgrp">Presets</div>
+    <div id="pickPresets" class="pgrid"></div>
+    <div class="pgrp">Library <span id="libCount"></span></div>
+    <div id="pickLib" class="pgrid"></div>
+    <p class="hint" id="libHint" style="margin:2px 4px 0"></p>
+  </div>
+  <div class="pfoot">
+    <button id="libAddFile" class="tool">Add from file</button>
+    <button id="libAddCur" class="tool">Add current part</button>
+    <button id="libExport" class="tool">Export library</button>
+    <input type="file" id="libFile" accept=".json" hidden multiple>
+  </div>
+</div></div>
     <div class="stagewrap">
       <canvas id="cv"></canvas>
       <div class="v3d" id="box3d">
@@ -263,9 +334,52 @@ vertical:{
     layers:[{name:'Wall'},{name:'Blinding',depth:0.075,front:0.100,back:0.100}]}
 }};
 
-var S={cat:'vertical',sub:'kerb-barrier',name:'',code:'',col:'#A6A79F',mirror:false,
-       pts:[],profile:[],layers:[],attach:{e:0,d:0},day:{e:0,d:0},day2:{e:0,d:0},use2:false,ov:{},sel:-1};
-var V={dim:true,grid:true,str:true,lab:true,grade:true};
+/* ── the assembly ──────────────────────────────────────────────
+   A part can hang off another part. The child's origin is a REFERENCE
+   POINT on its parent — the parent's daylight (the common case: a kerb
+   handing over to a pavement), or its second daylight, its attach point,
+   or a numbered vertex — plus an optional offset for things that sit
+   buried beside their parent rather than continuing its surface, such as
+   a subsoil drain behind a wall.
+   Part 0 is the root: its attach point is where the string is.
+   A parent always has a lower index than its child, which makes cycles
+   impossible by construction. ─────────────────────────────────────── */
+function newPart(){
+  return {cat:'vertical',sub:'kerb-barrier',name:'',code:'',col:'#A6A79F',
+          pts:[],profile:[],layers:[],attach:{e:0,d:0},day:{e:0,d:0},day2:{e:0,d:0},
+          use2:false,ov:{},sel:-1,parent:null,anchor:{kind:'day',v:0},off:[0,0]};
+}
+var ASM={name:'',code:'',mirror:false,parts:[newPart()],sel:0};
+var S=ASM.parts[0];
+var ORG=[0,0];
+function partOrigin(i){
+  var P=ASM.parts[i];
+  if(P.parent===null||P.parent===undefined||P.parent<0||P.parent>=i)return [0,0];
+  var w=featureWorld(P.parent,P.anchor);
+  return [w[0]+(P.off[0]||0), w[1]+(P.off[1]||0)];
+}
+function withPart(i,fn){
+  var s0=S,o0=ORG;
+  S=ASM.parts[i];ORG=partOrigin(i);
+  try{return fn();}finally{S=s0;ORG=o0;}
+}
+function featureWorld(pi,a){
+  return withPart(pi,function(){
+    var loc;
+    if(a.kind==='attach')loc=ptLocal(S.attach);
+    else if(a.kind==='day2')loc=ptLocal(S.day2);
+    else if(a.kind==='vertex'){var A=shp();loc=A[Math.max(0,Math.min(a.v||0,A.length-1))];}
+    else loc=ptLocal(S.day);
+    return Wp(loc);
+  });
+}
+function usePart(i){
+  ASM.sel=Math.max(0,Math.min(i,ASM.parts.length-1));
+  S=ASM.parts[ASM.sel];ORG=partOrigin(ASM.sel);
+}
+function refresh(){S=ASM.parts[ASM.sel];ORG=partOrigin(ASM.sel);}
+function eachPart(fn){for(var i=0;i<ASM.parts.length;i++)withPart(i,fn.bind(null,i));}
+var V={dim:true,grid:true,str:true,lab:true,grade:true,vnum:true,seglen:false};
 var view={k:900,tx:0,ty:0,fit:true};
 var isH=function(){return S.cat==='horizontal';};
 
@@ -285,7 +399,7 @@ function ptLocal(m){
   return [e[0][0]+(e[1][0]-e[0][0])*t, e[0][1]+(e[1][1]-e[0][1])*t];
 }
 function origin(){return ptLocal(S.attach);}
-function Wp(p){var o=origin();return [p[0]-o[0],p[1]-o[1]];}
+function Wp(p){var o=origin();return [p[0]-o[0]+ORG[0],p[1]-o[1]+ORG[1]];}
 function sOf(m){var s=0,i=Math.min(Math.max(m.e,0),nseg()-1);
   for(var k=0;k<i;k++)s+=slen(k);return s+Math.min(Math.max(m.d,0),slen(i));}
 function atS(s){
@@ -295,6 +409,7 @@ function atS(s){
   for(var i=0;i<nseg();i++){var L=slen(i);if(s<=L+1e-9)return {e:i,d:s};s-=L;}
   return {e:nseg()-1,d:slen(nseg()-1)};
 }
+function anyInvalid(){var bad=false;eachPart(function(){if(selfIntersects())bad=true;});return bad;}
 function selfIntersects(){
   var p=shp(),N=p.length,M=nseg();
   function o(P,Q,R){var v=(Q[1]-P[1])*(R[0]-Q[0])-(Q[0]-P[0])*(R[1]-Q[1]);return v>1e-12?1:(v<-1e-12?-1:0);}
@@ -314,6 +429,26 @@ function selfIntersects(){
    A truly vertical face has zero width in x and is fine — Grading Solver
    already treats those as walls. */
 function overhang(){
+  /* soffits are a per-part question; plan overlap is an assembly question,
+     because a kerb and the pavement chained onto it can each be fine alone
+     and still cover the same ground once joined */
+  var soff=null;
+  eachPart(function(i){if(!soff)soff=overhangOne();});
+  if(soff)return soff;
+  var sp=[];
+  eachPart(function(i){
+    pieces().filter(function(p){return p.shown;}).forEach(function(p){
+      var x0=Math.min(p.a[0],p.b[0]),x1=Math.max(p.a[0],p.b[0]);
+      if(x1-x0>1e-6)sp.push({x0:x0,x1:x1,name:(ASM.parts.length>1?('P'+(i+1)+' '):'')+p.name});
+    });
+  });
+  for(var i=0;i<sp.length;i++)for(var j=i+1;j<sp.length;j++){
+    var ov=Math.min(sp[i].x1,sp[j].x1)-Math.max(sp[i].x0,sp[j].x0);
+    if(ov>1e-6)return {a:sp[i].name,b:sp[j].name,w:ov,kind:'plan'};
+  }
+  return null;
+}
+function overhangOne(){
   /* (a) any downward-facing face sitting above the lowest point of the section.
      That is a soffit — something cantilevered out over open ground. The base
      itself faces down too, but it sits AT the lowest point, so it is fine. */
@@ -325,15 +460,6 @@ function overhang(){
       var e=seg(i),my=(e[0][1]+e[1][1])/2;
       if(my>ymin+1e-6)return {a:faceName(i)+' '+(i+1),b:'open ground below',w:my-ymin,kind:'soffit'};
     }
-  }
-  /* (b) two exposed pieces sharing the same x with real width between them */
-  var E=pieces().filter(function(p){return p.shown;});
-  var sp=E.map(function(p){
-    return {x0:Math.min(p.a[0],p.b[0]),x1:Math.max(p.a[0],p.b[0]),name:p.name};
-  }).filter(function(q){return q.x1-q.x0>1e-6;});
-  for(var i=0;i<sp.length;i++)for(var j=i+1;j<sp.length;j++){
-    var ov=Math.min(sp[i].x1,sp[j].x1)-Math.max(sp[i].x0,sp[j].x0);
-    if(ov>1e-6)return {a:sp[i].name,b:sp[j].name,w:ov,kind:'plan'};
   }
   return null;
 }
@@ -364,7 +490,8 @@ function triangulate(pts){
 }
 function gradeOf(i){
   var e=seg(i),dx=e[1][0]-e[0][0],dy=e[1][1]-e[0][1];
-  if(Math.abs(dx)<1e-9)return dy===0?null:'VERT';
+  /* a vertical face has no grade — labelling it says nothing, so say nothing */
+  if(Math.abs(dx)<1e-9)return null;
   var g=dy/dx;
   if(Math.abs(g)<1e-9)return '0.0%';
   if(Math.abs(g)<=0.20)return (g*100).toFixed(1)+'%';
@@ -411,7 +538,8 @@ function layerPolys(){
   return out;
 }
 function polyArea(p){return Math.abs(shoelace(p));}
-function totalArea(){var t=0;layerPolys().forEach(function(L){t+=polyArea(L.poly);});return t;}
+function partArea(){var t=0;layerPolys().forEach(function(L){t+=polyArea(L.poly);});return t;}
+function totalArea(){var t=0;eachPart(function(){t+=partArea();});return t;}
 
 /* ───────────── exposed / buried on Layer 1 ───────────── */
 function pieces(){
@@ -473,9 +601,16 @@ function pieces(){
   });
   return all;
 }
-function bbox(){
+function partBox(){
   var xs=[],ys=[];
   layerPolys().forEach(function(L){L.poly.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  if(!xs.length)return null;
+  return {x0:Math.min.apply(null,xs),x1:Math.max.apply(null,xs),
+          y0:Math.min.apply(null,ys),y1:Math.max.apply(null,ys)};
+}
+function bbox(){
+  var xs=[],ys=[];
+  eachPart(function(){var b=partBox();if(b){xs.push(b.x0,b.x1);ys.push(b.y0,b.y1);}});
   if(!xs.length)return {x0:0,x1:0,y0:0,y1:0};
   return {x0:Math.min.apply(null,xs),x1:Math.max.apply(null,xs),
           y0:Math.min.apply(null,ys),y1:Math.max.apply(null,ys)};
@@ -527,6 +662,11 @@ function loadPreset(cat,key){
    the shape, so pick whichever side is actually clear: sample both and take the
    one with less of the stub buried in the section. */
 function insidePart(q){
+  var any=false;
+  eachPart(function(){if(!any&&insideOne(q))any=true;});
+  return any;
+}
+function insideOne(q){
   var L=layerPolys();
   for(var k=0;k<L.length;k++){
     var P=L[k].poly,c=false,onEdge=false;
@@ -557,16 +697,20 @@ function stubDir(p0,len){
   return best.d;
 }
 
+function norm(v){var L=Math.hypot(v[0],v[1])||1;return [v[0]/L,v[1]/L];}
+function centroid(pl){var x=0,y=0;pl.forEach(function(p){x+=p[0];y+=p[1];});return [x/pl.length,y/pl.length];}
 /* ───────────── 2D canvas ───────────── */
 var cv=$('cv'),cx=cv.getContext('2d'),DPR=window.devicePixelRatio||1;
-function mx(){return S.mirror?-1:1;}
+function mx(){return ASM.mirror?-1:1;}
 function sx(x){return x*mx()*view.k+view.tx;}
 function sy(y){return -y*view.k+view.ty;}
 function ux(px){return (px-view.tx)/(view.k*mx());}
 function uy(py){return -(py-view.ty)/view.k;}
 function resize(){
   var r=cv.getBoundingClientRect();
-  cv.width=r.width*DPR;cv.height=r.height*DPR;
+  if(!r.width||!r.height)return;
+  var w=Math.round(r.width*DPR),h=Math.round(r.height*DPR);
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
   cx.setTransform(DPR,0,0,DPR,0,0);
   if(view.fit)fit();else draw();
 }
@@ -584,7 +728,8 @@ function fit(){
 function draw(){
   var r=cv.getBoundingClientRect();
   cx.clearRect(0,0,r.width,r.height);
-  var P=pieces(),L=layerPolys(),over=overhang(),bad=selfIntersects()||!!over;
+  refresh();
+  var P=pieces(),over=overhang(),bad=anyInvalid()||!!over;
   var day=Wp(ptLocal(S.day)),day2=S.use2?Wp(ptLocal(S.day2)):null;
 
   if(V.grid){
@@ -601,7 +746,7 @@ function draw(){
     cx.strokeStyle='#0E7C86';cx.lineWidth=2.5;cx.setLineDash([]);
     cx.beginPath();cx.moveTo(sx(sd*sr),sy(0));cx.lineTo(sx(0),sy(0));cx.stroke();
     cx.fillStyle='#0E7C86';cx.font='11px "Arial Narrow",sans-serif';
-    var rightOnScreen=(sd>0)===!S.mirror;
+    var rightOnScreen=(sd>0)===!ASM.mirror;
     cx.textAlign=rightOnScreen?'left':'right';
     cx.fillText('String',sx(sd*sr)+(rightOnScreen?4:-4),sy(0)-6);
     [day,day2].forEach(function(d,k){
@@ -611,29 +756,39 @@ function draw(){
       cx.beginPath();cx.moveTo(sx(d[0]),sy(d[1]));cx.lineTo(sx(d[0]+run*dir),sy(d[1]+rise));cx.stroke();
       cx.setLineDash([]);
       cx.fillStyle='#9AA0A8';cx.font='10px "Arial Narrow",sans-serif';
-      cx.textAlign=(dir>0)===!S.mirror?'left':'right';
-      cx.fillText('Daylight'+(S.use2?' '+(k+1):''),sx(d[0]+run*dir)+((dir>0)===!S.mirror?4:-4),sy(d[1]+rise)-3);
+      cx.textAlign=(dir>0)===!ASM.mirror?'left':'right';
+      cx.fillText('Daylight'+(S.use2?' '+(k+1):''),sx(d[0]+run*dir)+((dir>0)===!ASM.mirror?4:-4),sy(d[1]+rise)-3);
     });
   }
 
-  /* layers, deepest first so Layer 1 reads on top */
-  L.slice().reverse().forEach(function(Ly){
-    cx.beginPath();
-    Ly.poly.forEach(function(p,i){i?cx.lineTo(sx(p[0]),sy(p[1])):cx.moveTo(sx(p[0]),sy(p[1]));});
-    cx.closePath();
-    cx.fillStyle=(bad?'#D93025':layColour(Ly.i));cx.globalAlpha=bad?0.25:0.55;cx.fill();cx.globalAlpha=1;
-    cx.strokeStyle='#9A958A';cx.lineWidth=1;cx.stroke();
+  /* every part in the assembly; the selected one at full strength */
+  eachPart(function(pi){
+    var on=(pi===ASM.sel), L2=layerPolys();
+    L2.slice().reverse().forEach(function(Ly){
+      cx.beginPath();
+      Ly.poly.forEach(function(p,i){i?cx.lineTo(sx(p[0]),sy(p[1])):cx.moveTo(sx(p[0]),sy(p[1]));});
+      cx.closePath();
+      cx.fillStyle=(bad?'#D93025':layColour(Ly.i));
+      cx.globalAlpha=bad?0.25:(on?0.55:0.30);cx.fill();cx.globalAlpha=1;
+      cx.strokeStyle=on?'#9A958A':'#BEB9AC';cx.lineWidth=1;cx.stroke();
+    });
+    pieces().forEach(function(p){
+      cx.beginPath();cx.moveTo(sx(p.a[0]),sy(p.a[1]));cx.lineTo(sx(p.b[0]),sy(p.b[1]));
+      if(p.shown){cx.strokeStyle='#E0A100';cx.lineWidth=on?3.5:2.4;cx.setLineDash([]);}
+      else{cx.strokeStyle=on?'#8A9099':'#B2B7BD';cx.lineWidth=on?2:1.4;cx.setLineDash([5,4]);}
+      cx.stroke();cx.setLineDash([]);
+    });
+    /* where a child hands over from its parent, mark the join */
+    var Pt=ASM.parts[pi];
+    if(Pt.parent!==null&&Pt.parent!==undefined){
+      var j=[ORG[0],ORG[1]];
+      cx.strokeStyle='#5F8FA8';cx.lineWidth=1.4;cx.setLineDash([3,3]);
+      cx.beginPath();cx.arc(sx(j[0]),sy(j[1]),7,0,7);cx.stroke();cx.setLineDash([]);
+    }
   });
+  refresh();
 
-  /* Layer 1 faces */
-  P.forEach(function(p){
-    cx.beginPath();cx.moveTo(sx(p.a[0]),sy(p.a[1]));cx.lineTo(sx(p.b[0]),sy(p.b[1]));
-    if(p.shown){cx.strokeStyle='#E0A100';cx.lineWidth=3.5;cx.setLineDash([]);}
-    else{cx.strokeStyle='#8A9099';cx.lineWidth=2;cx.setLineDash([5,4]);}
-    cx.stroke();cx.setLineDash([]);
-  });
-
-  /* midpoint handles + vertices, on the authored shape only */
+  /* handles are for the selected part only */
   var O=shp().map(Wp);
   cx.strokeStyle='#8E9AA6';cx.lineWidth=1.2;cx.fillStyle='#F2F1EC';
   for(var i=0;i<nseg();i++){
@@ -646,6 +801,31 @@ function draw(){
     cx.fillStyle=i===S.sel?'#E0A100':'#6E747C';cx.fill();
     cx.strokeStyle='#F2F1EC';cx.lineWidth=1.2;cx.stroke();
   });
+  /* V-numbers beside each vertex, nudged along the outward angle bisector so
+     they sit clear of the shape and line up with the table in section 3 */
+  if(V.vnum){
+    cx.font='700 10px "Arial Narrow",sans-serif';cx.textAlign='center';cx.textBaseline='middle';
+    var N=O.length;
+    for(var i=0;i<N;i++){
+      var pr=O[(i-1+N)%N],cu=O[i],nx=O[(i+1)%N];
+      var d1=norm([cu[0]-pr[0],cu[1]-pr[1]]),d2=norm([nx[0]-cu[0],nx[1]-cu[1]]);
+      /* outward direction at the vertex: average the two edges' outward normals */
+      var ox=(d1[1]+d2[1]), oy=-(d1[0]+d2[0]);
+      var oL=Math.hypot(ox,oy); if(oL<1e-6){ox=d1[1];oy=-d1[0];oL=Math.hypot(ox,oy)||1;}
+      ox/=oL; oy/=oL;
+      var cen=centroid(O);
+      if((cu[0]-cen[0])*ox+(cu[1]-cen[1])*oy<0){ox=-ox;oy=-oy;}
+      var off=14;
+      cx.fillStyle='rgba(242,241,236,0.92)';
+      var tx=sx(cu[0])+ox*off*mx(), ty=sy(cu[1])-oy*off;
+      var lbl='V'+(i+1);
+      var w=cx.measureText(lbl).width+6;
+      cx.fillRect(tx-w/2,ty-7,w,14);
+      cx.fillStyle=i===S.sel?'#B07A00':'#6E747C';
+      cx.fillText(lbl,tx,ty);
+    }
+    cx.textBaseline='alphabetic';
+  }
 
   if(V.grade){
     cx.font='700 10px "Arial Narrow",sans-serif';cx.textAlign='center';cx.textBaseline='middle';
@@ -658,7 +838,7 @@ function draw(){
       var tw=cx.measureText(g).width+7;
       cx.fillStyle='rgba(242,241,236,0.88)';
       cx.fillRect(px-tw/2,py-7,tw,14);
-      cx.fillStyle=(g==='VERT')?'#0E7C86':'#7A6A2E';
+      cx.fillStyle='#7A6A2E';
       cx.fillText(g,px,py);
     }
     cx.textBaseline='alphabetic';
@@ -687,33 +867,94 @@ function draw(){
     cx.lineTo(sx(d[0]),sy(d[1])+7);cx.lineTo(sx(d[0])-7,sy(d[1]));cx.closePath();cx.fill();cx.stroke();
   });
 
-  if(V.dim){
-    var b=bbox();
-    cx.font='11px "Arial Narrow",sans-serif';cx.textAlign='center';
-    cx.strokeStyle='#B9B4A6';cx.fillStyle='#6E6A5E';cx.lineWidth=1;
-    var sp=(b.y1-b.y0)*0.12+0.02, yb=b.y0-sp;
-    cx.beginPath();cx.moveTo(sx(b.x0),sy(yb));cx.lineTo(sx(b.x1),sy(yb));cx.stroke();
-    cx.fillText((b.x1-b.x0).toFixed(3),(sx(b.x0)+sx(b.x1))/2,sy(yb)+13);
-    var xr=b.x1+(b.x1-b.x0)*0.05+0.02;
-    cx.beginPath();cx.moveTo(sx(xr),sy(b.y0));cx.lineTo(sx(xr),sy(b.y1));cx.stroke();
-    cx.save();cx.translate(sx(xr)+(S.mirror?-13:13),(sy(b.y0)+sy(b.y1))/2);cx.rotate(-Math.PI/2);
-    cx.fillText((b.y1-b.y0).toFixed(3),0,0);cx.restore();
-  }
+  if(V.dim)drawDims(O);
   bar(P,bad,L,over);
   if(v3.on)draw3();
 }
+function tick(x0,y0,x1,y1){cx.beginPath();cx.moveTo(x0,y0);cx.lineTo(x1,y1);cx.stroke();}
+function dimText(t,px,py,rot){
+  cx.save();cx.translate(px,py);if(rot)cx.rotate(-Math.PI/2);
+  var w=cx.measureText(t).width+6;
+  cx.fillStyle='rgba(242,241,236,0.92)';cx.fillRect(-w/2,-7,w,14);
+  cx.fillStyle='#5C5850';cx.fillText(t,0,0);cx.restore();
+}
+function drawDims(O){
+  var lb=partBox()||bbox();
+  var b={x0:lb.x0,x1:lb.x1,y0:lb.y0,y1:lb.y1};
+  /* offsets are SCREEN distances. Scaling them to the selected part's own size
+     put the dimension line 15 px off a kerb whenever the view was fitted to a
+     wider assembly around it. */
+  var W2=function(px){return px/view.k;};
+  cx.font='10px "Arial Narrow",sans-serif';cx.textAlign='center';cx.textBaseline='middle';
+  cx.lineWidth=1;
+  /* dimension the SELECTED part across all its layers, so the running chain
+     reaches the same extent as the overall box (footings go deeper and wider
+     than the section outline) */
+  var pts=[];layerPolys().forEach(function(L){L.poly.forEach(function(q){pts.push(q);});});
+  function uniq(a){a=a.slice().sort(function(x,y){return x-y;});var o=[];
+    a.forEach(function(v){if(!o.length||Math.abs(v-o[o.length-1])>1e-4)o.push(v);});return o;}
+  var xs=uniq(pts.map(function(p){return p[0];})), ys=uniq(pts.map(function(p){return p[1];}));
+
+  /* running horizontal chain below the part, overall beneath it */
+  var yb=b.y0-W2(38);
+  cx.strokeStyle='#C7C2B4';
+  tick(sx(xs[0]),sy(yb),sx(xs[xs.length-1]),sy(yb));
+  xs.forEach(function(x){tick(sx(x),sy(yb)-4,sx(x),sy(yb)+4);tick(sx(x),sy(b.y0),sx(x),sy(yb));});
+  for(var i=0;i<xs.length-1;i++)
+    dimText((xs[i+1]-xs[i]).toFixed(3),(sx(xs[i])+sx(xs[i+1]))/2,sy(yb)+11,false);
+  if(xs.length>2){
+    var yb2=yb-W2(24);cx.strokeStyle='#B9B4A6';
+    tick(sx(xs[0]),sy(yb2),sx(xs[xs.length-1]),sy(yb2));
+    tick(sx(xs[0]),sy(yb2)-4,sx(xs[0]),sy(yb)+2);
+    tick(sx(xs[xs.length-1]),sy(yb2)-4,sx(xs[xs.length-1]),sy(yb)+2);
+    dimText('W '+(b.x1-b.x0).toFixed(3),(sx(xs[0])+sx(xs[xs.length-1]))/2,sy(yb2)+11,false);
+  }
+
+  /* running vertical chain on the outboard side, overall beyond it */
+  var side=ASM.mirror?-1:1;
+  var xr=(side>0?b.x1:b.x0)+side*W2(38);
+  cx.strokeStyle='#C7C2B4';
+  tick(sx(xr),sy(ys[0]),sx(xr),sy(ys[ys.length-1]));
+  ys.forEach(function(y){tick(sx(xr)-4,sy(y),sx(xr)+4,sy(y));
+    tick(sx(side>0?b.x1:b.x0),sy(y),sx(xr),sy(y));});
+  for(var i=0;i<ys.length-1;i++)
+    dimText((ys[i+1]-ys[i]).toFixed(3),sx(xr)+side*11*mx(),(sy(ys[i])+sy(ys[i+1]))/2,true);
+  if(ys.length>2){
+    var xr2=xr+side*W2(24);cx.strokeStyle='#B9B4A6';
+    tick(sx(xr2),sy(ys[0]),sx(xr2),sy(ys[ys.length-1]));
+    tick(sx(xr2),sy(ys[0]),sx(xr),sy(ys[0]));
+    tick(sx(xr2),sy(ys[ys.length-1]),sx(xr),sy(ys[ys.length-1]));
+    dimText('D '+(b.y1-b.y0).toFixed(3),sx(xr2)+side*11*mx(),(sy(ys[0])+sy(ys[ys.length-1]))/2,true);
+  }
+
+  /* each segment's own length at its midpoint, just outside the face */
+  if(V.seglen){
+    for(var i=0;i<nseg();i++){
+      if(slen(i)*view.k<38)continue;
+      var e=seg(i),v=nrm(i);
+      var mid=Wp([(e[0][0]+e[1][0])/2,(e[0][1]+e[1][1])/2]);
+      var px=sx(mid[0])+v[0]*11*mx(), py=sy(mid[1])-v[1]*11, t=slen(i).toFixed(3);
+      var w=cx.measureText(t).width+5;
+      cx.fillStyle='rgba(242,241,236,0.85)';cx.fillRect(px-w/2,py-6,w,12);
+      cx.fillStyle='#7A6A2E';cx.fillText(t,px,py);
+    }
+  }
+  cx.textBaseline='alphabetic';
+}
 function bar(P,bad,L,over){
+  refresh();
   P=P||pieces();L=L||layerPolys();
   if(over===undefined)over=overhang();
   var b=bbox(),day=Wp(ptLocal(S.day));
   $('vW').textContent=(b.x1-b.x0).toFixed(3)+' m';
   $('vH').textContent=(b.y1-b.y0).toFixed(3)+' m';
-  $('vL').textContent=S.layers.length;
+  var nl=0;eachPart(function(){nl+=S.layers.length;});
+  $('vL').textContent=(ASM.parts.length>1?ASM.parts.length+' parts · ':'')+nl;
   $('vA').textContent=totalArea().toFixed(4)+' m³/m';
   var ls=0;P.forEach(function(p){if(p.shown)ls+=Math.hypot(p.b[0]-p.a[0],p.b[1]-p.a[1]);});
   $('vS').textContent=ls.toFixed(3)+' m';
   $('vD').textContent=r4(day[0]).toFixed(3)+' out, '+r4(day[1]).toFixed(3)+' up';
-  var cross=selfIntersects();
+  var cross=anyInvalid();
   if(bad===undefined)bad=cross||!!over;
   var msg='', tag='';
   if(cross){
@@ -845,6 +1086,17 @@ function rot(p){
   return {sx:X,sy:Z*cp-Y*sp,d:Y*cp+Z*sp};
 }
 function proj(p){var r=rot(p);return {x:v3.tx+r.sx*v3.k,y:v3.ty-r.sy*v3.k,d:r.d};}
+/* simple lambert in camera space so form reads without any wireframe */
+function shade(n){
+  var r=rot(n), L=[-0.32,0.52,0.79];
+  var d=r.sx*L[0]+r.sy*L[1]+(-r.d)*L[2];
+  return 0.52+0.48*Math.max(0,Math.min(1,d));
+}
+function tint(col,k){
+  var m2=col.match(/[\d.]+/g);if(!m2)return col;
+  function c(v){return Math.max(0,Math.min(255,Math.round(+v*k)));}
+  return 'rgb('+c(m2[0])+','+c(m2[1])+','+c(m2[2])+')';
+}
 /* A marker can sit part-way along an edge, so an edge is not uniformly exposed.
    Split each Layer 1 edge into the spans the chains actually cover, and mark
    each span on its own. Anything not covered by a shown piece stays buried. */
@@ -872,9 +1124,20 @@ function edgeSpans(a,b,P){
   return out;
 }
 function solid(){
+  var F=[];
+  eachPart(function(){F=F.concat(solidOne());});
+  return F;
+}
+function mixCol(hex,rgb,t){
+  var h=hex.replace('#','');
+  var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  var m2=rgb.match(/\d+/g);
+  return 'rgb('+Math.round(+m2[0]*(1-t)+r*t)+','+Math.round(+m2[1]*(1-t)+g*t)+','+Math.round(+m2[2]*(1-t)+b*t)+')';
+}
+function solidOne(){
   var F=[],P=pieces(),L=layerPolys();
   L.forEach(function(Ly){
-    var poly=Ly.poly,N=poly.length,col=layColour(Ly.i);
+    var poly=Ly.poly,N=poly.length,col=mixCol(S.col||'#A6A79F',layColour(Ly.i),0.35);
     for(var i=0;i<N;i++){
       var a=poly[i],b=poly[(i+1)%N];
       var dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1;
@@ -884,19 +1147,31 @@ function solid(){
       spans.forEach(function(sp){
         var qa=[a[0]+dx*sp.t0,a[1]+dy*sp.t0], qb=[a[0]+dx*sp.t1,a[1]+dy*sp.t1];
         var kind=sp.shown?'shown':'layer';
-        for(var s=0;s<NSEG;s++){
-          var y0=RUN*s/NSEG,y1=RUN*(s+1)/NSEG;
-          F.push({pts:[[qa[0],y0,qa[1]],[qb[0],y0,qb[1]],[qb[0],y1,qb[1]],[qa[0],y1,qa[1]]],
-                  nrm:[nv2[0],0,nv2[1]],kind:kind,col:col});
+        /* Split ALONG the face too, not just along the run. A 3.5 m pavement
+           face carrying one depth value sorts wrongly against a 0.1 m kerb
+           face; chopping it means no piece spans two depth regions. */
+        var flen=Math.hypot(qb[0]-qa[0],qb[1]-qa[1]);
+        var NA=Math.max(1,Math.min(10,Math.ceil(flen/0.40)));
+        for(var u=0;u<NA;u++){
+          var ta=u/NA, tb=(u+1)/NA;
+          var ra=[qa[0]+(qb[0]-qa[0])*ta, qa[1]+(qb[1]-qa[1])*ta];
+          var rb=[qa[0]+(qb[0]-qa[0])*tb, qa[1]+(qb[1]-qa[1])*tb];
+          for(var sgi=0;sgi<NSEG;sgi++){
+            var y0=RUN*sgi/NSEG,y1=RUN*(sgi+1)/NSEG;
+            F.push({pts:[[ra[0],y0,ra[1]],[rb[0],y0,rb[1]],[rb[0],y1,rb[1]],[ra[0],y1,ra[1]]],
+                    nrm:[nv2[0],0,nv2[1]],kind:kind,col:col,
+                    /* which sides are real edges, so seams are never stroked */
+                    ed:[sgi===0, u===NA-1&&sp.t1>1-1e-6, sgi===NSEG-1, u===0&&sp.t0<1e-6]});
+          }
         }
       });
     }
     var T=triangulate(poly);
     T.forEach(function(t){
       F.push({pts:[[poly[t[0]][0],0,poly[t[0]][1]],[poly[t[1]][0],0,poly[t[1]][1]],[poly[t[2]][0],0,poly[t[2]][1]]],
-              nrm:[0,-1,0],kind:'cap',col:col});
+              nrm:[0,-1,0],kind:'cap',col:col,ed:[false,false,false]});
       F.push({pts:[[poly[t[2]][0],RUN,poly[t[2]][1]],[poly[t[1]][0],RUN,poly[t[1]][1]],[poly[t[0]][0],RUN,poly[t[0]][1]]],
-              nrm:[0,1,0],kind:'cap',col:col});
+              nrm:[0,1,0],kind:'cap',col:col,ed:[false,false,false]});
     });
   });
   return F;
@@ -904,8 +1179,10 @@ function solid(){
 function fit3(){
   var r=c3.getBoundingClientRect();if(!r.width||!r.height)return;
   var xs=[],ys=[];
-  layerPolys().forEach(function(L){L.poly.forEach(function(q){[0,RUN].forEach(function(y){
-    var t=rot([q[0],y,q[1]]);xs.push(t.sx);ys.push(t.sy);});});});
+  eachPart(function(){
+    layerPolys().forEach(function(L){L.poly.forEach(function(q){[0,RUN].forEach(function(y){
+      var t=rot([q[0],y,q[1]]);xs.push(t.sx);ys.push(t.sy);});});});
+  });
   if(!xs.length)return;
   var x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs);
   var y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys);
@@ -915,7 +1192,9 @@ function fit3(){
 }
 function resize3(){
   var r=c3.getBoundingClientRect();
-  c3.width=r.width*DPR;c3.height=r.height*DPR;
+  if(!r.width||!r.height)return;
+  var w=Math.round(r.width*DPR),h=Math.round(r.height*DPR);
+  if(c3.width!==w||c3.height!==h){c3.width=w;c3.height=h;}
   x3.setTransform(DPR,0,0,DPR,0,0);fit3();draw3();
 }
 function draw3(){
@@ -929,16 +1208,29 @@ function draw3(){
 
   var F=solid().filter(function(f){return rot(f.nrm).d<-1e-9;}).map(function(f){
     var pr=f.pts.map(proj),d=0;pr.forEach(function(q){d+=q.d;});
-    return {f:f,pr:pr,d:d/pr.length};
+    return {f:f,pr:pr,d:d/pr.length,sh:shade(f.nrm)};
   }).sort(function(a,b){return b.d-a.d;});
+  /* Fills are OPAQUE. Stroking every subdivided quad — including its internal
+     seams — is what turned the viewer hazy once faces were split finely, so
+     seams are never stroked and shading carries the form instead. */
   F.forEach(function(o){
     var f=o.f;
     x3.beginPath();
     o.pr.forEach(function(q,i){i?x3.lineTo(q.x,q.y):x3.moveTo(q.x,q.y);});
     x3.closePath();
-    if(f.kind==='shown'){x3.fillStyle='rgba(224,161,0,0.72)';x3.strokeStyle='rgba(240,190,69,0.5)';}
-    else{x3.fillStyle=f.col;x3.globalAlpha=f.kind==='cap'?0.42:0.62;x3.strokeStyle='rgba(20,24,28,0.45)';}
-    x3.lineWidth=0.7;x3.fill();x3.globalAlpha=1;x3.stroke();
+    x3.fillStyle=(f.kind==='shown')?tint('rgb(224,161,0)',o.sh):tint(f.col,o.sh*(f.kind==='cap'?0.82:1));
+    x3.fill();
+  });
+  /* real edges only, after the fills, in the same depth order */
+  x3.lineWidth=1;
+  F.forEach(function(o){
+    var f=o.f;if(!f.ed)return;
+    x3.strokeStyle=(f.kind==='shown')?'rgba(120,84,0,0.75)':'rgba(16,19,24,0.55)';
+    for(var i=0;i<o.pr.length;i++){
+      if(!f.ed[i])continue;
+      var a=o.pr[i],b=o.pr[(i+1)%o.pr.length];
+      x3.beginPath();x3.moveTo(a.x,a.y);x3.lineTo(b.x,b.y);x3.stroke();
+    }
   });
   var day=Wp(ptLocal(S.day)),A2=proj([0,0,0]),D2=proj([day[0],0,day[1]]);
   x3.fillStyle='#2E8B57';x3.strokeStyle='#0b0f13';x3.lineWidth=1.4;
@@ -991,11 +1283,15 @@ function fillSegSelects(){
   });
 }
 function vtxList(){
-  var box=$('vtxList'),A=shp();
-  if(box.dataset.n!==String(A.length)||box.dataset.c!==S.cat){
-    box.innerHTML='';box.dataset.n=String(A.length);box.dataset.c=S.cat;
+  var box=$('vtxList'),A=shp(),key=S.cat+':'+A.length+':'+nseg();
+  if(box.dataset.key!==key){
+    box.innerHTML='';box.dataset.key=key;
+    var hd=document.createElement('div');
+    hd.className='vhead';
+    hd.innerHTML='<span class="vn"></span><span class="vh">Out</span><span class="vh">Up</span><span style="flex:0 0 22px"></span>';
+    box.appendChild(hd);
     A.forEach(function(_,i){
-      var row=document.createElement('div');row.className='vrow';
+      var row=document.createElement('div');row.className='vrow';row.dataset.v=String(i);
       row.innerHTML='<span class="vn">V'+(i+1)+'</span>'+
         '<input class="ix" type="number" step="0.001">'+
         '<input class="iy" type="number" step="0.001">'+
@@ -1005,17 +1301,33 @@ function vtxList(){
         var v=parseFloat(this.value);if(!isNaN(v)){shp()[i][0]=r4(asM(v));clampMarkers();draw();}});
       row.querySelector('.iy').addEventListener('input',function(){
         var v=parseFloat(this.value);if(!isNaN(v)){shp()[i][1]=r4(asM(v));clampMarkers();draw();}});
-      ['.ix','.iy'].forEach(function(s){row.querySelector(s).addEventListener('blur',function(){sync();draw();commit();});});
+      ['.ix','.iy'].forEach(function(q){row.querySelector(q).addEventListener('blur',function(){sync();draw();commit();});});
       row.querySelector('.vx').onclick=function(){commit();if(deleteVertex(i)){sync();draw();commit();}};
       box.appendChild(row);
+      /* the face that runs from this vertex to the next — reading the table
+         top to bottom now walks the section, so a V number means something */
+      if(i<nseg()){
+        var fr=document.createElement('div');
+        fr.className='frow';fr.dataset.f=String(i);
+        fr.onclick=function(){S.sel=-1;sync();draw();};
+        box.appendChild(fr);
+      }
     });
   }
   for(var i=0;i<A.length;i++){
-    var row=box.children[i];if(!row)continue;
+    var row=box.querySelector('.vrow[data-v="'+i+'"]');if(!row)continue;
     row.classList.toggle('sel',i===S.sel);
     var xi=row.querySelector('.ix'),yi=row.querySelector('.iy');
     if(document.activeElement!==xi)xi.value=A[i][0].toFixed(3);
     if(document.activeElement!==yi)yi.value=A[i][1].toFixed(3);
+  }
+  for(var i=0;i<nseg();i++){
+    var fr=box.querySelector('.frow[data-f="'+i+'"]');if(!fr)continue;
+    var g=gradeOf(i), to='V'+(((i+1)%A.length)+1);
+    fr.innerHTML='<span class="fa">↳ '+to+'</span>'+
+      '<span class="fn">'+faceName(i)+'</span>'+
+      '<span class="fl">'+slen(i).toFixed(3)+'</span>'+
+      '<span class="fg">'+(g?g:'vert')+'</span>';
   }
 }
 function layList(){
@@ -1059,10 +1371,61 @@ function faceList(P){
     box.appendChild(d);
   });
 }
+function partLabel(i){
+  var P=ASM.parts[i];
+  return (P.name||PRESETS[P.cat][P.sub]&&PRESETS[P.cat][P.sub].name||('Part '+(i+1)));
+}
+function partList(){
+  var box=$('partList');box.innerHTML='';
+  ASM.parts.forEach(function(P,i){
+    var d=document.createElement('div');
+    d.className='prow'+(i===ASM.sel?' on':'');
+    var via=(P.parent===null||P.parent===undefined)?'on the string'
+      :('→ '+partLabel(P.parent)+' · '+({day:'daylight',day2:'daylight 2',attach:'attach',vertex:'vertex '+((P.anchor.v||0)+1)}[P.anchor.kind]));
+    d.innerHTML='<span class="pn">'+(i+1)+' · '+partLabel(i)+'<br><span class="pi">'+via+'</span></span>'+
+      (ASM.parts.length>1&&i>0?'<button class="px" title="Remove part">×</button>':'');
+    d.onclick=function(e){
+      if(e.target.className==='px')return;
+      usePart(i);sync();draw();
+    };
+    var x=d.querySelector('.px');
+    if(x)x.onclick=function(e){
+      e.stopPropagation();commit();
+      ASM.parts.splice(i,1);
+      ASM.parts.forEach(function(q,k){        /* re-point anything that referenced it */
+        if(q.parent===null||q.parent===undefined)return;
+        if(q.parent===i)q.parent=(k>0?0:null);
+        else if(q.parent>i)q.parent--;
+      });
+      usePart(Math.min(ASM.sel,ASM.parts.length-1));
+      sync();fit();commit();
+    };
+    box.appendChild(d);
+  });
+  var P=ASM.parts[ASM.sel],root=(P.parent===null||P.parent===undefined);
+  $('anchorBox').style.display=root?'none':'block';
+  if(!root){
+    var sel=$('anParent');
+    if(document.activeElement!==sel){
+      sel.innerHTML='';
+      for(var k=0;k<ASM.sel;k++){        /* only earlier parts, so cycles cannot form */
+        var o=document.createElement('option');o.value=k;o.textContent=(k+1)+' · '+partLabel(k);
+        sel.appendChild(o);
+      }
+      sel.value=P.parent;
+    }
+    put('anKind',P.anchor.kind);
+    $('anVbox').style.display=(P.anchor.kind==='vertex')?'block':'none';
+    put('anV',String((P.anchor.v||0)+1));
+    put('anX',(P.off[0]||0).toFixed(3));
+    put('anY',(P.off[1]||0).toFixed(3));
+  }
+}
 function sync(){
+  refresh();
   var P=pieces();
   put('pName',S.name);put('pCode',S.code);put('pCol',S.col);
-  $('pMir').checked=S.mirror;$('cat').value=S.cat;$('use2').checked=S.use2;
+  $('pMir').checked=ASM.mirror;$('cat').value=S.cat;$('use2').checked=S.use2;
   $('d2box').style.display=S.use2?'block':'none';
   $('shapeHint').textContent=isH()
     ?'The section runs left to right and must not double back. Drag a vertex, or a segment to change its level. Layers hang below it.'
@@ -1070,7 +1433,7 @@ function sync(){
   $('dayHint').textContent=isH()
     ?'Width is set between these markers. Attach is the origin — the string never moves.'
     :'Distance runs from the start of that edge. The batter itself is set on the string in Grading Solver.';
-  fillSubs();vtxList();layList();fillSegSelects();
+  partList();fillSubs();vtxList();layList();fillSegSelects();
   put('aD',S.attach.d.toFixed(3));put('dD',S.day.d.toFixed(3));put('d2D',S.day2.d.toFixed(3));
   faceList(P);bar(P,undefined,null);
 }
@@ -1084,7 +1447,7 @@ on('sub','change',function(){loadPreset(S.cat,this.value);sync();fit();fit3();dr
 on('pName','input',function(){S.name=this.value;commitSoon();});
 on('pCode','input',function(){S.code=this.value;commitSoon();});
 on('pCol','input',function(){S.col=this.value;draw();commitSoon();});
-on('pMir','change',function(){S.mirror=this.checked;fit();commit();});
+on('pMir','change',function(){ASM.mirror=this.checked;fit();commit();});
 on('use2','change',function(){
   S.use2=this.checked;
   if(S.use2){var T=total();S.day2=atS(isH()?0:(sOf(S.day)+T/2)%T);}
@@ -1106,10 +1469,121 @@ mkD('dD',function(){return S.day;});
 mkD('d2D',function(){return S.day2;});
 on('bUndo','click',undo);
 on('bRedo','click',redo);
+/* ───────────── part picker and library ─────────────
+   Nothing is attached until you choose it. The library holds part
+   definitions loaded from saved files or lifted from the current
+   assembly; export it to keep it between sessions. */
+var LIB=[], pickMode='attach';
+function partDef(){
+  return {category:S.cat,part:S.sub,name:S.name,code:S.code,colour:S.col,
+    shape:shp().map(rd),
+    layers:S.layers.map(function(Ly){return {name:Ly.name,
+      depth:Ly.depth===undefined?null:Ly.depth,front:Ly.front||0,back:Ly.back||0};}),
+    attach:{segment:S.attach.e,distance:r4(S.attach.d)},
+    daylight:{segment:S.day.e,distance:r4(S.day.d)},
+    daylight2:S.use2?{segment:S.day2.e,distance:r4(S.day2.d)}:null};
+}
+function libAdd(def){
+  if(!def||!def.shape||def.shape.length<2)return false;
+  var nm=(def.name||def.code||'Part');
+  LIB.push({name:nm,code:def.code||'',def:def});
+  return true;
+}
+function openPick(mode){
+  pickMode=mode||'attach';
+  $('pickTitle').textContent=(pickMode==='attach')?'Attach a part':'Replace this part';
+  renderPick();$('pick').classList.add('on');
+}
+function closePick(){$('pick').classList.remove('on');}
+function renderPick(){
+  var g=$('pickPresets');g.innerHTML='';
+  ['vertical','horizontal'].forEach(function(cat){
+    Object.keys(PRESETS[cat]).forEach(function(k){
+      var b=document.createElement('button');b.className='ptile';
+      b.innerHTML=PRESETS[cat][k].name+'<small>'+cat+'</small>';
+      b.onclick=function(){choose({preset:[cat,k]});};
+      g.appendChild(b);
+    });
+  });
+  var l=$('pickLib');l.innerHTML='';
+  LIB.forEach(function(e,i){
+    var b=document.createElement('button');b.className='ptile';
+    b.innerHTML='<span class="rm" title="Remove">×</span>'+e.name+
+      '<small>'+(e.code||'saved')+'</small>';
+    b.onclick=function(ev){
+      if(ev.target.className==='rm'){LIB.splice(i,1);renderPick();return;}
+      choose({def:e.def});
+    };
+    l.appendChild(b);
+  });
+  $('libCount').textContent=LIB.length?('· '+LIB.length):'';
+  $('libHint').textContent=LIB.length?'':
+    'Nothing saved yet. Add from file pulls in any part you have saved; add current part lifts the one you are editing. Export keeps the library between sessions.';
+}
+function choose(sel){
+  commit();
+  if(pickMode==='attach'){
+    var np=newPart();
+    np.parent=ASM.sel;np.anchor={kind:'day',v:0};np.off=[0,0];
+    ASM.parts.push(np);
+    usePart(ASM.parts.length-1);
+  }
+  if(sel.preset)loadPreset(sel.preset[0],sel.preset[1]);
+  else{try{applyPart(ASM.parts[ASM.sel],sel.def);}catch(e){alert('That part could not be read.');}}
+  clampMarkers();refresh();closePick();
+  sync();fit();fit3();draw3();commit();
+}
+on('bAddPart','click',function(){openPick('attach');});
+on('bSwapPart','click',function(){openPick('swap');});
+on('pickX','click',closePick);
+$('pick').addEventListener('click',function(e){if(e.target===this)closePick();});
+on('libAddCur','click',function(){refresh();libAdd(partDef());renderPick();});
+on('libAddFile','click',function(){$('libFile').click();});
+on('libFile','change',function(){
+  var fs=this.files,n=0,done=0;
+  if(!fs||!fs.length)return;
+  Array.prototype.forEach.call(fs,function(f){
+    var rdr=new FileReader();
+    rdr.onload=function(){
+      try{
+        var d=JSON.parse(rdr.result);
+        if(d.parts&&d.parts.length)d.parts.forEach(function(pd){if(libAdd(pd))n++;});
+        else if(d.library&&d.library.length)d.library.forEach(function(e){if(libAdd(e.def||e))n++;});
+        else if(libAdd(d))n++;
+      }catch(e){}
+      if(++done===fs.length){renderPick();if(!n)alert('No parts found in that file.');}
+    };
+    rdr.readAsText(f);
+  });
+  this.value='';
+});
+on('libExport','click',function(){
+  if(!LIB.length){alert('The library is empty.');return;}
+  var bl=new Blob([JSON.stringify({tool:'parts-solver',library:LIB},null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(bl);
+  a.download='parts-library.json';a.click();
+});
+on('anParent','change',function(){ASM.parts[ASM.sel].parent=+this.value;sync();fit();commit();});
+on('anKind','change',function(){
+  ASM.parts[ASM.sel].anchor.kind=this.value;sync();fit();commit();
+});
+on('anV','input',function(){
+  var v=parseInt(this.value,10);
+  if(!isNaN(v)&&v>=1){ASM.parts[ASM.sel].anchor.v=v-1;refresh();sync();draw();commitSoon();}
+});
+on('anX','input',function(){
+  var v=parseFloat(this.value);
+  if(!isNaN(v)){ASM.parts[ASM.sel].off[0]=r4(asM(v));refresh();sync();draw();commitSoon();}
+});
+on('anY','input',function(){
+  var v=parseFloat(this.value);
+  if(!isNaN(v)){ASM.parts[ASM.sel].off[1]=r4(asM(v));refresh();sync();draw();commitSoon();}
+});
+['anX','anY','anV'].forEach(function(id){on(id,'blur',function(){sync();commit();});});
 on('bReset','click',function(){S.ov={};sync();draw();commit();});
-['tDim','tGrid','tStr','tLab','tGrade'].forEach(function(id){
+['tDim','tGrid','tStr','tLab','tGrade','tVnum','tSeg'].forEach(function(id){
   on(id,'click',function(){
-    var k={tDim:'dim',tGrid:'grid',tStr:'str',tLab:'lab',tGrade:'grade'}[id];
+    var k={tDim:'dim',tGrid:'grid',tStr:'str',tLab:'lab',tGrade:'grade',tVnum:'vnum',tSeg:'seglen'}[id];
     V[k]=!V[k];this.classList.toggle('on',V[k]);draw();
   });
 });
@@ -1126,11 +1600,7 @@ on('b3dReset','click',function(){v3.yaw=-0.62;v3.pitch=0.50;v3.zoom=1;fit3();dra
    Snapshots of everything the user can change. A whole drag is one step:
    the state is captured when the drag starts, not on every mouse move. */
 var HIST=[],HI=-1,HMAX=120,htimer=null;
-function capture(){
-  return JSON.stringify({cat:S.cat,sub:S.sub,name:S.name,code:S.code,col:S.col,
-    mirror:S.mirror,use2:S.use2,pts:S.pts,profile:S.profile,layers:S.layers,
-    attach:S.attach,day:S.day,day2:S.day2,ov:S.ov});
-}
+function capture(){return JSON.stringify({m:ASM.mirror,n:ASM.name,c:ASM.code,s:ASM.sel,p:ASM.parts});}
 function commit(){
   var now=capture();
   if(HI>=0&&HIST[HI]===now)return;
@@ -1143,11 +1613,10 @@ function commit(){
 function commitSoon(){clearTimeout(htimer);htimer=setTimeout(commit,450);}
 function restore(js){
   var d=JSON.parse(js);
-  S.cat=d.cat;S.sub=d.sub;S.name=d.name;S.code=d.code;S.col=d.col;
-  S.mirror=d.mirror;S.use2=d.use2;
-  S.pts=d.pts;S.profile=d.profile;S.layers=d.layers;
-  S.attach=d.attach;S.day=d.day;S.day2=d.day2;S.ov=d.ov;
-  S.sel=-1;clampMarkers();
+  ASM.mirror=d.m;ASM.name=d.n;ASM.code=d.c;ASM.parts=d.p;
+  usePart(Math.min(d.s||0,ASM.parts.length-1));
+  eachPart(function(){clampMarkers();});
+  refresh();
   sync();draw();fit3();draw3();
   histButtons();
 }
@@ -1170,33 +1639,51 @@ window.addEventListener('keydown',function(e){
 /* ───────────── save / open ───────────── */
 function rd(p){return [r4(p[0]),r4(p[1])];}
 on('bSave','click',function(){
-  var P=pieces(),L=layerPolys(),b=bbox();
-  function chain(sh){
-    var out=[],q=P.filter(function(p){return p.shown===sh;}).sort(function(a,c){return a.s0-c.s0;});
-    q.forEach(function(p,i){if(i===0)out.push(rd(p.a));out.push(rd(p.b));});
-    return out;
-  }
+  refresh();
+  var b=bbox(), parts=[];
+  eachPart(function(i){
+    var P=pieces(),L=layerPolys(),Pt=ASM.parts[i];
+    function chain(sh){
+      var out=[],q=P.filter(function(p){return p.shown===sh;}).sort(function(a,c){return a.s0-c.s0;});
+      q.forEach(function(p,k){if(k===0)out.push(rd(p.a));out.push(rd(p.b));});
+      return out;
+    }
+    parts.push({
+      index:i+1,category:S.cat,part:S.sub,name:S.name,code:S.code,colour:S.col,
+      parent:(Pt.parent===null||Pt.parent===undefined)?null:Pt.parent+1,
+      anchor:(Pt.parent===null||Pt.parent===undefined)?null:
+        {on:Pt.anchor.kind,vertex:Pt.anchor.kind==='vertex'?(Pt.anchor.v||0)+1:null,
+         offset:[r4(Pt.off[0]||0),r4(Pt.off[1]||0)]},
+      origin:rd(ORG),
+      shape:shp().map(rd),
+      shapeWorld:shp().map(function(q){return rd(Wp(q));}),
+      layers:S.layers.map(function(Ly,k){return {
+        index:k+1,name:Ly.name,depth:Ly.depth===undefined?null:Ly.depth,
+        front:Ly.front||0,back:Ly.back||0,
+        area:Math.round(polyArea(L[k].poly)*1e6)/1e6,
+        poly:L[k].poly.map(rd)};}),
+      attach:{point:rd(Wp(ptLocal(S.attach))),segment:S.attach.e,distance:r4(S.attach.d)},
+      daylight:{point:rd(Wp(ptLocal(S.day))),segment:S.day.e,distance:r4(S.day.d)},
+      daylight2:S.use2?{point:rd(Wp(ptLocal(S.day2))),segment:S.day2.e,distance:r4(S.day2.d)}:null,
+      faces:P.map(function(p){return {id:p.id,name:p.name,segment:p.e,shown:p.shown,
+        vertical:!!p.vertical,a:rd(p.a),b:rd(p.b)};}),
+      exposedChain:chain(true),hiddenChain:chain(false),
+      area:Math.round(partArea()*1e6)/1e6
+    });
+  });
+  var root=ASM.parts[0];
   var data={
-    tool:'parts-solver',version:4,
-    category:S.cat,part:S.sub,name:S.name,code:S.code,colour:S.col,mirror:S.mirror,
-    width:r4(b.x1-b.x0),depth:r4(b.y1-b.y0),totalArea:Math.round(totalArea()*1e6)/1e6,
-    shape:shp().map(rd),
-    shapeWorld:shp().map(function(p){return rd(Wp(p));}),
-    layers:S.layers.map(function(Ly,i){return {
-      index:i+1,name:Ly.name,depth:Ly.depth===undefined?null:Ly.depth,
-      front:Ly.front||0,back:Ly.back||0,
-      area:Math.round(polyArea(L[i].poly)*1e6)/1e6,
-      poly:L[i].poly.map(rd)};}),
-    attach:{point:[0,0],segment:S.attach.e,distance:r4(S.attach.d)},
-    daylight:{point:rd(Wp(ptLocal(S.day))),segment:S.day.e,distance:r4(S.day.d)},
-    daylight2:S.use2?{point:rd(Wp(ptLocal(S.day2))),segment:S.day2.e,distance:r4(S.day2.d)}:null,
-    faces:P.map(function(p){return {id:p.id,name:p.name,segment:p.e,shown:p.shown,vertical:!!p.vertical,a:rd(p.a),b:rd(p.b)};}),
-    exposedChain:chain(true),hiddenChain:chain(false),
-    valid:!selfIntersects()
+    tool:'parts-solver',version:5,
+    name:ASM.name||root.name,code:ASM.code||root.code,mirror:ASM.mirror,
+    width:r4(b.x1-b.x0),depth:r4(b.y1-b.y0),
+    totalArea:Math.round(totalArea()*1e6)/1e6,
+    partCount:ASM.parts.length,
+    parts:parts,
+    valid:!anyInvalid()&&!overhang()
   };
   var bl=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(bl);
-  a.download=(S.code||'part').replace(/[^\w\-]+/g,'_')+'.json';a.click();
+  a.download=((ASM.code||root.code)||'part').replace(/[^\w\-]+/g,'_')+'.json';a.click();
 });
 on('bLoad','click',function(){$('file').click();});
 on('file','change',function(){readPart(this.files[0]);this.value='';});
@@ -1221,35 +1708,66 @@ window.addEventListener('drop',function(e){
   var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
   if(f)readPart(f);
 });
+function applyPart(P,d){
+  P.cat=(d.category==='horizontal')?'horizontal':'vertical';
+  P.sub=d.part||Object.keys(PRESETS[P.cat])[0];
+  var pts=d.shape||d.local||d.outline;
+  if(!pts||pts.length<2)throw 0;
+  if(P.cat==='horizontal'){P.profile=pts.map(function(q){return [r4(q[0]),r4(q[1])];});P.pts=[];}
+  else{P.pts=pts.map(function(q){return [r4(q[0]),r4(q[1])];});P.profile=[];}
+  P.layers=(d.layers||[{name:'Layer 1'}]).map(function(L){
+    return {name:L.name,depth:(L.depth===null||L.depth===undefined)?undefined:L.depth,
+            front:L.front||0,back:L.back||0};});
+  P.name=d.name||'';P.code=d.code||'';P.col=d.colour||'#A6A79F';
+  P.attach={e:(d.attach&&d.attach.segment)||0,d:(d.attach&&d.attach.distance)||0};
+  P.day={e:(d.daylight&&d.daylight.segment)||0,d:(d.daylight&&d.daylight.distance)||0};
+  P.use2=!!d.daylight2;
+  P.day2=d.daylight2?{e:d.daylight2.segment,d:d.daylight2.distance}:{e:0,d:0};
+  P.ov={};P.sel=-1;
+  if(d.faces)d.faces.forEach(function(f2){if(f2.id!==undefined)P.ov[f2.id]=!!f2.shown;});
+}
 function readPart(f){
   if(!f)return;
   var rdr=new FileReader();
   rdr.onload=function(){
     try{
       var d=JSON.parse(rdr.result);
-      var pts=d.shape||d.local||d.outline;if(!pts||pts.length<2)throw 0;
-      S.cat=d.category==='horizontal'?'horizontal':'vertical';
-      if(!d.category&&d.local)S.cat='vertical';        /* pre-category file */
-      S.sub=d.part||Object.keys(PRESETS[S.cat])[0];
-      if(isH()){S.profile=pts.map(function(p){return [r4(p[0]),r4(p[1])];});S.pts=[];}
-      else{S.pts=pts.map(function(p){return [r4(p[0]),r4(p[1])];});S.profile=[];ensureCCW();}
-      S.layers=(d.layers||[{name:'Layer 1'}]).map(function(L){
-        return {name:L.name,depth:L.depth===null?undefined:L.depth,front:L.front||0,back:L.back||0};});
-      S.name=d.name||'';S.code=d.code||'';S.col=d.colour||'#A6A79F';S.mirror=!!d.mirror;
-      S.attach={e:(d.attach&&d.attach.segment)||0,d:(d.attach&&d.attach.distance)||0};
-      S.day={e:(d.daylight&&d.daylight.segment)||0,d:(d.daylight&&d.daylight.distance)||0};
-      S.use2=!!d.daylight2;
-      S.day2=d.daylight2?{e:d.daylight2.segment,d:d.daylight2.distance}:{e:0,d:0};
-      S.ov={};S.sel=-1;clampMarkers();
-      if(d.faces)d.faces.forEach(function(f2){if(f2.id!==undefined)S.ov[f2.id]=!!f2.shown;});
-      sync();fit();fit3();draw3();commit();
+      ASM.mirror=!!d.mirror;ASM.name=d.name||'';ASM.code=d.code||'';
+      if(d.parts&&d.parts.length){                 /* v5 assembly */
+        ASM.parts=d.parts.map(function(pd,i){
+          var P=newPart();
+          applyPart(P,pd);
+          if(pd.parent&&pd.parent>=1&&pd.parent-1<i){
+            P.parent=pd.parent-1;
+            P.anchor={kind:(pd.anchor&&pd.anchor.on)||'day',
+                      v:(pd.anchor&&pd.anchor.vertex?pd.anchor.vertex-1:0)};
+            P.off=(pd.anchor&&pd.anchor.offset)?pd.anchor.offset.slice():[0,0];
+          }
+          return P;
+        });
+      }else{                                        /* a single part, any earlier version */
+        var P=newPart();applyPart(P,d);ASM.parts=[P];
+      }
+      usePart(0);
+      eachPart(function(){clampMarkers();});
+      refresh();sync();fit();fit3();draw3();commit();
     }catch(e){alert('That file is not a Parts Solver part.');}
   };
   rdr.readAsText(f);
 }
-
 window.addEventListener('resize',function(){resize();if(v3.on)resize3();});
+/* the 3D panel is sized as a percentage of the stage, so it changes size
+   whenever the layout does — not only when the window resizes. Without this
+   the backing store goes stale and the browser scales it, which reads as blur. */
+if(window.ResizeObserver){
+  var ro=new ResizeObserver(function(){if(v3.on)resize3();});
+  ro.observe($('cv3'));
+  var ro2=new ResizeObserver(function(){resize();});
+  ro2.observe($('cv'));
+}
+usePart(0);
 loadPreset('vertical','kerb-barrier');
+refresh();
 sync();resize();resize3();commit();
 </script>
 </body>
