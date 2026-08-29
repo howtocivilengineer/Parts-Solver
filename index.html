@@ -1681,6 +1681,20 @@ on('bSave','click',function(){
     parts:parts,
     valid:!anyInvalid()&&!overhang()
   };
+  /* BACKWARD COMPATIBILITY SHIM — v5 moved every field a consumer needs
+     (exposedChain, shape, attach, daylight, faces...) inside parts[0].
+     A reader built against the v4 flat format finds nothing at the top
+     level and reports no exposed shape. For a single, unchained part —
+     the common case — mirror parts[0]'s fields back onto the top level
+     so an old reader still works unchanged. An assembly (partCount>1)
+     cannot be flattened onto one part, so it is left without the shim;
+     the consumer needs to read parts[] directly for those. */
+  if(parts.length===1){
+    var r0=parts[0];
+    ['category','part','name','code','colour','shape','shapeWorld','layers',
+     'attach','daylight','daylight2','faces','exposedChain','hiddenChain','area'
+    ].forEach(function(k){data[k]=r0[k];});
+  }
   var bl=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(bl);
   a.download=((ASM.code||root.code)||'part').replace(/[^\w\-]+/g,'_')+'.json';a.click();
